@@ -1,6 +1,6 @@
 ﻿namespace TodoNetCore.Models;
 
-public class TodoItem
+public class TodoItemDTO
 {
     public long Id { get; set; }
 
@@ -9,8 +9,6 @@ public class TodoItem
     public required string Description { get; set; }
 
     public bool? IsComplete { get; set; } = false;
-
-    public string? Secret { get; set; }
 
     public DateTime? CreatedAt { get; set; } = DateTime.Now;
 }

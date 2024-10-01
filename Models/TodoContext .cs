@@ -6,4 +6,3 @@ public class TodoContext(DbContextOptions<TodoContext> options) : DbContext(opti
 {
     public DbSet<TodoItem>? TodoItems { get; set; } = null;
 }
-
