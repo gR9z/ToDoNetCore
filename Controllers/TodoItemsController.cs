@@ -1,74 +1,67 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TodoNetCore.Data;
-using TodoNetCore.Models;
+using TodoNetCore.Data.Repository;
 using TodoNetCore.Models.DTOs;
 
 namespace TodoNetCore.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TodoItemsController(ApplicationDbContext _context) : ControllerBase
+public class TodoItemsController(ApplicationDbContext _context, ITodoRepository _todoRepository) : ControllerBase
 {
     // GET: api/TodoItems
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TodoItemDto>>> GetTodoItems()
     {
-        return await _context.TodoItems
-            .Select(item => ItemToDTO(item))
-            .ToListAsync();
+        var todoItems = await _todoRepository.GetAllTasks();
+
+        if (!todoItems.Any()) return NotFound();
+
+        return Ok(todoItems);
     }
 
     // GET: api/TodoItems/5
     [HttpGet("{id}")]
     public async Task<ActionResult<TodoItemDto>> GetTodoItem(long id)
     {
-        var todoItem = await _context.TodoItems.FindAsync(id);
-
-        if (todoItem == null)
+        try
         {
-            return NotFound();
+            var todoItem = await _todoRepository.GetTaskById(id);
+            return Ok(todoItem);
         }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { ex.Message });
+        }
+    }
 
-        return ItemToDTO(todoItem);
+    // GET: api/TodoItems/status
+    [HttpGet("status/{isCompleted}")]
+    public async Task<ActionResult<IEnumerable<TodoItemDto>>> GetTodoByStatus(bool isCompleted) {
+        var todoItems = await _todoRepository.GetTasksByStatus(isCompleted);
+
+        if(!todoItems.Any()) return NotFound();
+
+        return Ok(todoItems);
     }
 
     // PUT: api/TodoItems/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTodoItem(long id, TodoItemDto todoDTO)
+    public async Task<IActionResult> PutTodoItem(long id, TodoItemDto todoDto)
     {
-        if (id != todoDTO.Id)
-        {
+        if (id != todoDto.Id)
             return BadRequest();
-        }
-
-        var todoItem = await _context.TodoItems.FindAsync(id);
-        if (todoItem == null)
-        {
-            return NotFound();
-        }
-
-        todoItem.Name = todoDTO.Name;
-        todoItem.Description = todoDTO.Description;
-        todoItem.IsComplete = todoDTO.IsComplete;
-        todoItem.CreatedAt = todoDTO.CreatedAt;
 
         try
         {
-            await _context.SaveChangesAsync();
+            var todoItemDto = await _todoRepository.GetTaskById(id);
+            return Ok(todoItemDto);
         }
-        catch (DbUpdateConcurrencyException)
+        catch (KeyNotFoundException ex)
         {
-            if (!TodoItemExists(id))
-            {
-                return NotFound();
-            }
-
-            throw;
+            return NotFound(ex.Message);
         }
-
-        return NoContent();
     }
 
     // POST: api/TodoItems
@@ -76,47 +69,29 @@ public class TodoItemsController(ApplicationDbContext _context) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<TodoItemDto>> PostTodoItem(TodoItemDto todoDTO)
     {
-        var todoItem = new TodoItem
+        try
         {
-            Name = todoDTO.Name,
-            Description = todoDTO.Description,
-            IsComplete = todoDTO.IsComplete,
-            CreatedAt = todoDTO.CreatedAt
-        };
-
-        _context.TodoItems.Add(todoItem);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, ItemToDTO(todoItem));
+            var createdTodoItemDto = await _todoRepository.AddTask(todoDTO);
+            return CreatedAtAction(nameof(GetTodoItem), new { id = createdTodoItemDto.Id }, createdTodoItemDto);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
+        }
     }
 
     // DELETE: api/TodoItems/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTodoItem(long id)
     {
-        var todoItem = await _context.TodoItems.FindAsync(id);
-        if (todoItem == null)
+        try
         {
-            return NotFound();
+            await _todoRepository.DeleteTodoItem(id);
+            return Ok();
         }
-
-        _context.TodoItems.Remove(todoItem);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { ex.Message });
+        }
     }
-
-    private bool TodoItemExists(long id)
-    {
-        return _context.TodoItems.Any(e => e.Id == id);
-    }
-
-    private static TodoItemDto ItemToDTO(TodoItem todoItem) =>
-        new TodoItemDto {
-            Id = todoItem.Id,
-            Name = todoItem.Name,
-            Description = todoItem.Description,
-            IsComplete = todoItem.IsComplete,
-            CreatedAt = todoItem.CreatedAt
-        };
 }
