@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>77709f09-e852-40f5-90b7-cef368af9d94</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +18,12 @@
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\Repository\" />
+    <Folder Include="Migrations\" />
+    <Folder Include="Helpers\" />
   </ItemGroup>
 
 </Project>

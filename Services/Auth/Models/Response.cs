@@ -1,4 +1,4 @@
-﻿namespace TodoNetCore.Auth;
+﻿namespace TodoNetCore.Services.Auth.Models;
 
 public class Response
 {

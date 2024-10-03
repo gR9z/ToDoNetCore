@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace TodoNetCore.Auth;
+namespace TodoNetCore.Services.Auth;
 
 public class AuthContext(DbContextOptions<AuthContext> options) : IdentityDbContext<IdentityUser>(options)
 {

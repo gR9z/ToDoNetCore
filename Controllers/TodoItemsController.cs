@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TodoNetCore.Data;
 using TodoNetCore.Models;
+using TodoNetCore.Models.DTOs;
 
 namespace TodoNetCore.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TodoItemsController(TodoContext _context) : ControllerBase
+public class TodoItemsController(ApplicationDbContext _context) : ControllerBase
 {
     // GET: api/TodoItems
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
+    public async Task<ActionResult<IEnumerable<TodoItemDto>>> GetTodoItems()
     {
         return await _context.TodoItems
             .Select(item => ItemToDTO(item))
@@ -24,7 +21,7 @@ public class TodoItemsController(TodoContext _context) : ControllerBase
 
     // GET: api/TodoItems/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<TodoItemDTO>> GetTodoItem(long id)
+    public async Task<ActionResult<TodoItemDto>> GetTodoItem(long id)
     {
         var todoItem = await _context.TodoItems.FindAsync(id);
 
@@ -39,7 +36,7 @@ public class TodoItemsController(TodoContext _context) : ControllerBase
     // PUT: api/TodoItems/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTodoItem(long id, TodoItemDTO todoDTO)
+    public async Task<IActionResult> PutTodoItem(long id, TodoItemDto todoDTO)
     {
         if (id != todoDTO.Id)
         {
@@ -77,7 +74,7 @@ public class TodoItemsController(TodoContext _context) : ControllerBase
     // POST: api/TodoItems
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<TodoItemDTO>> PostTodoItem(TodoItemDTO todoDTO)
+    public async Task<ActionResult<TodoItemDto>> PostTodoItem(TodoItemDto todoDTO)
     {
         var todoItem = new TodoItem
         {
@@ -114,9 +111,8 @@ public class TodoItemsController(TodoContext _context) : ControllerBase
         return _context.TodoItems.Any(e => e.Id == id);
     }
 
-    private static TodoItemDTO ItemToDTO(TodoItem todoItem) =>
-        new TodoItemDTO
-        {
+    private static TodoItemDto ItemToDTO(TodoItem todoItem) =>
+        new TodoItemDto {
             Id = todoItem.Id,
             Name = todoItem.Name,
             Description = todoItem.Description,

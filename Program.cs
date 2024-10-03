@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using TodoNetCore.Auth;
-using TodoNetCore.Models;
+using TodoNetCore.Data;
+using TodoNetCore.Services.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -34,7 +34,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 // DB Context
-builder.Services.AddDbContext<TodoContext>(
+builder.Services.AddDbContext<ApplicationDbContext>(
     opt => opt.UseInMemoryDatabase("TodoList")
 );
 

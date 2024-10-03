@@ -1,6 +1,6 @@
-﻿namespace TodoNetCore.Models;
+﻿namespace TodoNetCore.Models.DTOs;
 
-public class TodoItemDTO
+public class TodoItemDto
 {
     public long Id { get; set; }
 
