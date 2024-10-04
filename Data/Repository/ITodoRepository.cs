@@ -10,9 +10,9 @@ public interface ITodoRepository
 
     Task<IEnumerable<TodoItemDto>> GetTasksByStatus(bool isCompleted);
 
-    Task<TodoItemDto> AddTask(TodoItemDto todoDTO);
+    Task<TodoItemDto> AddTask(TodoItemDto todoDto);
 
-    Task UpdateTask(long id, TodoItemDto todoDto);
+    Task<TodoItemDto> UpdateTask(TodoItemDto todoDto);
 
     Task DeleteTodoItem(long id);
 }

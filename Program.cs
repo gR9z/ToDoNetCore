@@ -6,7 +6,9 @@ using Microsoft.IdentityModel.Tokens;
 using TodoNetCore.Data;
 using TodoNetCore.Data.Repository;
 using TodoNetCore.Data.Repository.Impl;
+using TodoNetCore.Extensions;
 using TodoNetCore.Services.Auth;
+using TodoNetCore.Services.Todo;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -55,8 +57,8 @@ builder.Services.AddSwaggerGen();
 // Controllers
 builder.Services.AddControllers();
 
-// Repositories
-builder.Services.AddScoped<ITodoRepository, TodoRepositoryImpl>();
+// Services
+builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 

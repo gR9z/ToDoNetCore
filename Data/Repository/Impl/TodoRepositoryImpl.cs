@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using TodoNetCore.Models;
 using TodoNetCore.Models.DTOs;
 
 namespace TodoNetCore.Data.Repository.Impl;
 
-public class TodoRepositoryImpl(ApplicationDbContext _context) : ITodoRepository
+public class TodoRepositoryImpl(ApplicationDbContext _context, ILogger<TodoRepositoryImpl> _logger) : ITodoRepository
 {
     public async Task<IEnumerable<TodoItemDto>> GetAllTasks()
     {
@@ -29,24 +30,24 @@ public class TodoRepositoryImpl(ApplicationDbContext _context) : ITodoRepository
             .ToListAsync();
     }
 
-    public async Task<TodoItemDto> AddTask(TodoItemDto todoDTO)
+    public async Task<TodoItemDto> AddTask(TodoItemDto todoDto)
     {
         var todoItem = new TodoItem
         {
-            Name = todoDTO.Name,
-            Description = todoDTO.Description,
-            IsComplete = todoDTO.IsComplete,
-            CreatedAt = todoDTO.CreatedAt
+            Name = todoDto.Name,
+            Description = todoDto.Description,
+            IsComplete = todoDto.IsComplete,
         };
-
+        
         _context.TodoItems.Add(todoItem);
         await _context.SaveChangesAsync();
 
         return ItemToDTO(todoItem);
     }
 
-    public async Task UpdateTask(long id, TodoItemDto todoDto)
+    public async Task<TodoItemDto> UpdateTask(TodoItemDto todoDto)
     {
+        var id = todoDto.Id;
         var todoItem = await _context.TodoItems.FindAsync(id);
 
         if (todoItem == null) throw new KeyNotFoundException($"L'élément avec l'ID {id} n'a pas été trouvé.");
@@ -54,11 +55,11 @@ public class TodoRepositoryImpl(ApplicationDbContext _context) : ITodoRepository
         todoItem.Name = todoDto.Name;
         todoItem.Description = todoDto.Description;
         todoItem.IsComplete = todoDto.IsComplete;
-        todoItem.CreatedAt = todoDto.CreatedAt;
 
         try
         {
             await _context.SaveChangesAsync();
+            return ItemToDTO(todoItem);
         }
         catch (DbUpdateConcurrencyException)
         {
